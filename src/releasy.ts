@@ -2,6 +2,7 @@ import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
 import { runCommand } from './utils.js';
+import readline from 'node:readline';
 import chalk from 'chalk';
 
 export async function runReleasy() {
@@ -56,7 +57,7 @@ export async function runReleasy() {
   const changelogLines: string[] = [];
 
   await new Promise<void>((resolve) => {
-    const rl = require('readline').createInterface({
+    const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
       terminal: false,
