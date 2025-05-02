@@ -67,6 +67,11 @@ export async function runReleasy() {
       changelogLines.push(line);
     });
 
+    rl.on('SIGINT', () => {
+      rl.close();
+      resolve();
+    });
+
     rl.on('close', () => resolve());
   });
 
