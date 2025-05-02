@@ -1,3 +1,23 @@
+if (process.argv.includes('--help')) {
+  console.log(`\n📦 Releasy CLI — Your Release Assistant
+
+Usage:
+  releasy [options]
+
+Options:
+  --help              Show this help message
+  --dry-run           Run without making any changes
+  --yes               Skip all confirmation prompts
+  --config <path>     Use custom config file instead of .releasyrc.json
+  --changelog <path>  Write changelog to a specific file
+
+Example:
+  releasy --dry-run --changelog tool/changelog_v2.0.0.md
+
+`);
+  process.exit(0);
+}
+
 import inquirer from 'inquirer';
 import fs from 'fs';
 import path from 'path';
@@ -5,7 +25,38 @@ import { runCommand } from './utils.js';
 import readline from 'node:readline';
 import chalk from 'chalk';
 
+interface ReleasyConfig {
+  repo?: string;
+  defaultTitle?: string;
+  skipConfirm?: boolean;
+  useBuildNumber?: boolean;
+  autoPush?: boolean;
+  changelogFilePath?: string;
+}
+
+function loadConfig(): ReleasyConfig {
+  const configFlagIndex = process.argv.indexOf('--config');
+  const configPath = configFlagIndex !== -1 ? process.argv[configFlagIndex + 1] : '.releasyrc.json';
+
+  try {
+    const configData = fs.readFileSync(configPath, 'utf-8');
+    console.log(chalk.cyan(`⚙️ Using config from ${configPath}`));
+    return JSON.parse(configData);
+  } catch {
+    console.warn(chalk.yellow(`⚠️ No config file found at ${configPath}, using defaults.`));
+    return {};
+  }
+}
+
+
+const isDryRun = process.argv.includes('--dry-run');
+if (isDryRun) {
+  console.log(chalk.cyan('🧪 Running in dry-run mode. No changes will be written.'));
+}
+
 export async function runReleasy() {
+  const config = loadConfig();
+
   console.log(chalk.green('\n📦 Releasy CLI — Your JS Release Assistant'));
 
   const { versionInput } = await inquirer.prompt([
@@ -22,8 +73,8 @@ export async function runReleasy() {
   ]);
 
   const version = versionInput.slice(1);
-  const buildNumber = Date.now() % 1000 + 60;
-  const fullVersion = `${version}+${buildNumber}`;
+  const buildNumber = config.useBuildNumber ? (Date.now() % 1000 + 60) : 0;
+  const fullVersion = buildNumber ? `${version}+${buildNumber}` : version;
 
   console.log(chalk.blue('🔍 Checking Git status...'));
 
@@ -50,6 +101,7 @@ export async function runReleasy() {
       type: 'input',
       name: 'title',
       message: '📝 Enter release title:',
+      default: config.defaultTitle ?? '',
     },
   ]);
 
@@ -63,15 +115,16 @@ export async function runReleasy() {
   });
 
   await new Promise<void>((resolve) => {
-    rl.on('line', (line: string) => {
-      changelogLines.push(line);
-    });
-
+    rl.on('line', (line: string) => changelogLines.push(line));
     rl.on('close', () => resolve());
   });
 
   const changelog = changelogLines.join('\n').trim();
-  const changelogPath = path.join('tool', `changelog_${versionInput}.md`);
+  const changelogArgIndex = process.argv.indexOf('--changelog');
+  const changelogPath =
+    changelogArgIndex !== -1
+      ? process.argv[changelogArgIndex + 1]
+      : config.changelogFilePath || path.join('tool', `changelog_${versionInput}.md`);
   fs.mkdirSync('tool', { recursive: true });
   fs.writeFileSync(changelogPath, changelog);
 
@@ -80,32 +133,40 @@ export async function runReleasy() {
   fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
   console.log(chalk.green(`📦 package.json updated to: ${fullVersion}`));
 
-  await runCommand('git', ['add', 'package.json']);
+  if (!isDryRun) await runCommand('git', ['add', 'package.json']);
 
   const diff = await runCommand('git', ['diff', '--cached']);
   if (diff) console.log(chalk.blue('\n🔍 Git diff preview:\n') + diff);
 
-  const { confirm } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirm',
-      message: `🚀 Tag and release ${versionInput}?`,
-      default: false,
-    },
-  ]);
+  const forceConfirm = process.argv.includes('--yes');
+  let confirm = true;
+  if (!config.skipConfirm && !forceConfirm) {
+    const confirmation = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirm',
+        message: `🚀 Tag and release ${versionInput}?`,
+        default: false,
+      },
+    ]);
+    confirm = confirmation.confirm;
+  }
 
   if (!confirm) {
     console.log(chalk.red('❌ Cancelled.'));
     process.exit(0);
   }
 
-  await runCommand('git', ['commit', '-m', `chore: bump version to ${versionInput}`]);
-  await runCommand('git', ['tag', '-a', versionInput, '-F', changelogPath]);
-  await runCommand('git', ['push']);
-  await runCommand('git', ['push', 'origin', versionInput]);
+  if (!isDryRun) await runCommand('git', ['commit', '-m', `chore: bump version to ${versionInput} `]);
+  if (!isDryRun) await runCommand('git', ['tag', '-a', versionInput, '-F', changelogPath]);
+
+  if (config.autoPush) {
+    if (!isDryRun) await runCommand('git', ['push']);
+    if (!isDryRun) await runCommand('git', ['push', 'origin', versionInput]);
+  }
 
   try {
-    await runCommand('gh', [
+    const ghArgs = [
       'release',
       'create',
       versionInput,
@@ -114,9 +175,15 @@ export async function runReleasy() {
       '-t',
       title,
       '--draft',
-    ]);
+    ];
+
+    if (config.repo) {
+      ghArgs.push('--repo', config.repo);
+    }
+
+    if (!isDryRun) await runCommand('gh', ghArgs);
     console.log(chalk.green(`🎉 Draft GitHub release created for ${versionInput}!`));
   } catch (err) {
-    console.error(chalk.red(`⚠️ GitHub release failed:\n${err}`));
+    console.error(chalk.red(`⚠️ GitHub release failed: \n${err} `));
   }
 }
