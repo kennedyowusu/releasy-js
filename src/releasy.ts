@@ -56,20 +56,15 @@ export async function runReleasy() {
   console.log(chalk.yellow('\n✍️ Paste your changelog. Press CTRL+D (or CMD+D) when done:\n'));
   const changelogLines: string[] = [];
 
-  await new Promise<void>((resolve) => {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: false,
-    });
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: true,
+  });
 
+  await new Promise<void>((resolve) => {
     rl.on('line', (line: string) => {
       changelogLines.push(line);
-    });
-
-    rl.on('SIGINT', () => {
-      rl.close();
-      resolve();
     });
 
     rl.on('close', () => resolve());
