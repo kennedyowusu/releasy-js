@@ -1,6 +1,6 @@
 {
   "name": "releasy",
-  "version": "2.3.4+308",
+  "version": "2.5.4+881",
   "description": "Your JavaScript release assistant",
   "type": "module",
   "bin": {
