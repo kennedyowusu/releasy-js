@@ -2,5 +2,6 @@
   "defaultTitle": "Release: Minor update",
   "skipConfirm": true,
   "autoPush": true,
-  "useBuildNumber": true
+  "useBuildNumber": true,
+  "repo": "kennedyowusu/releasy-js"
 }
