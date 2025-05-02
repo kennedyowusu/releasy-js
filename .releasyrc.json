@@ -1,0 +1,6 @@
+{
+  "defaultTitle": "Release: Minor update",
+  "skipConfirm": true,
+  "autoPush": true,
+  "useBuildNumber": true
+}
