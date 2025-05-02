@@ -25,8 +25,16 @@
 
 ## 📦 Installation
 
+### Using npm
+
 ```bash
 npm install -g releasy-it
+```
+
+### Using Yarn
+
+```bash
+yarn global add releasy-it
 ```
 
 ---
