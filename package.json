@@ -7,7 +7,7 @@
     "releasy": "./dist/bin/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/bin/index.js",
     "start": "ts-node src/releasy.ts"
   },
   "dependencies": {
