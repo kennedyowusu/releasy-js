@@ -1,8 +1,8 @@
 if (process.argv.includes('--help')) {
-  console.log(`\n📦 Releasy CLI — Your Release Assistant
+  console.log(`\n📦 Releasy-it CLI — Your Release Assistant
 
 Usage:
-  releasy [options]
+  releasy-it [options]
 
 Options:
   --help              Show this help message
@@ -12,7 +12,7 @@ Options:
   --changelog <path>  Write changelog to a specific file
 
 Example:
-  releasy --dry-run --changelog tool/changelog_v2.0.0.md
+  releasy-it --dry-run --changelog tool/changelog_v2.0.0.md
 
 `);
   process.exit(0);
