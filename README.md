@@ -1,6 +1,10 @@
-# 📦 Releasy CLI
+# 📦 Releasy-it CLI
 
-**Releasy** is a lightweight, interactive CLI tool for versioning, tagging, changelog generation, and GitHub release automation in TypeScript/Node.js projects.
+[![npm version](https://img.shields.io/npm/v/releasy-it.svg)](https://www.npmjs.com/package/releasy-it)
+
+**Releasy-it** is a lightweight, interactive CLI tool for versioning, tagging, changelog generation, and GitHub release automation in TypeScript/Node.js projects.
+
+🟢 Live on npm: [https://www.npmjs.com/package/releasy-it](https://www.npmjs.com/package/releasy-it)
 
 ---
 
@@ -22,7 +26,7 @@
 ## 📦 Installation
 
 ```bash
-npm install -g ./releasy-js  # or npm link after building
+npm install -g releasy-it
 ```
 
 ---
@@ -30,7 +34,7 @@ npm install -g ./releasy-js  # or npm link after building
 ## 🚀 Usage
 
 ```bash
-releasy [options]
+releasy-it [options]
 ```
 
 ### Options
@@ -48,7 +52,7 @@ releasy [options]
 ### Example
 
 ```bash
-releasy --changelog tool/changelog_v2.1.0.md --yes
+releasy-it --changelog tool/changelog_v2.1.0.md --yes
 ```
 
 ---
