@@ -1,0 +1,22 @@
+{
+  "name": "releasy",
+  "version": "0.1.0",
+  "description": "Your JavaScript release assistant",
+  "type": "module",
+  "bin": {
+    "releasy": "./dist/bin/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/releasy.ts"
+  },
+  "dependencies": {
+    "inquirer": "^9.0.0",
+    "chalk": "^5.2.0",
+    "execa": "^7.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.1"
+  }
+}

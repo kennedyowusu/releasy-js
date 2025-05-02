@@ -1,0 +1,17 @@
+# Ignore node dependencies
+node_modules/
+
+# Ignore build output
+dist/
+
+# Ignore environment and editor files
+.env
+.vscode/
+.idea/
+*.iml
+*.class
+.DS_Store
+
+# Ignore test history, temp logs
+.history/
+*.log
