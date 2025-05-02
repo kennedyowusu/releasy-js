@@ -1,7 +1,7 @@
 {
-  "name": "releasy",
-  "version": "5.4.2+188",
-  "description": "Your JavaScript release assistant",
+  "name": "releasy-it",
+  "version": "1.0.0",
+  "description": "Your JavaScript release assistant (Kennedy's version)",
   "type": "module",
   "bin": {
     "releasy": "./dist/bin/index.js"
